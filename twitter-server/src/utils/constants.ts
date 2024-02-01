@@ -1,0 +1,4 @@
+const JWT_SECRETE_TOKEN = "sfadhaslkfbaljbdlasjfbuyyagserialweglidbalfjfbas83qyo8trqulwv238"
+
+
+export {JWT_SECRETE_TOKEN}

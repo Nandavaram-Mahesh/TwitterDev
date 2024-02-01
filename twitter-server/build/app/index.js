@@ -19,6 +19,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const user_1 = require("./user");
+const jwt_1 = require("../utils/jwt");
 dotenv_1.default.config({
     path: "./.env",
 });
@@ -42,7 +43,7 @@ function initializeServer() {
             },
         });
         yield server.start();
-        app.use('/graphql', (0, express4_1.expressMiddleware)(server));
+        app.use('/graphql', (0, express4_1.expressMiddleware)(server, { context: ({ req, res }) => __awaiter(this, void 0, void 0, function* () { return ({ user: req.headers.authorization ? jwt_1.JWTService.decodeToken(req.headers.authorization.split("Bearer ")[1]) : "" }); }) }));
         return app;
     });
 }

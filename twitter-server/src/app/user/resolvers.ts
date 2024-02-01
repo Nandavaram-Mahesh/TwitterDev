@@ -1,43 +1,35 @@
 import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import { prismaClient } from '../../db';
+import { JWTService } from '../../utils/jwt';
+import { GoogleTokenResult, MyContext } from '../../utils/interfaces';
 
 
-interface GoogleTokenResult{
 
-        iss?:string;
-        nbf?:number;
-        aud?:string;
-        sub?:string;
-        email:string;
-        email_verified:boolean;
-        azp?:string;
-        name?:string;
-        picture?:string;
-        given_name:string;
-        family_name?:string;
-        iat?:number;
-        exp?:number;
-        jti?:string;
-        alg?:string;
-        kid?:string;
-        typ?:string
-}
 const queries={
-    verifyGoogleToken:async (parent:any,{token}:{token:string})=>{ 
-        const googleAuthToken = token
-        const googleOAuthURL = new URL('https://oauth2.googleapis.com/tokeninfo')
-        googleOAuthURL.searchParams.set('id_token',googleAuthToken)
 
-        const {data} = await axios.get<GoogleTokenResult>(googleOAuthURL.toString(),{
+    verifyGoogleToken:async (parent:any,{token}:{token:string})=>{ 
+        
+        const googleAuthToken = token
+        
+        // const googleOAuthURL = new URL('https://oauth2.googleapis.com/tokeninfo')
+        // googleOAuthURL.searchParams.set('id_token',googleAuthToken)
+
+        const googleOAuthURL =`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`
+
+        const {data} = await axios.get<GoogleTokenResult>(googleOAuthURL,{
             responseType:"json"
         })
 
-        const userExists = await prismaClient.user.findUnique({
+    
+        
+        const existingUser = await prismaClient.user.findUnique({
             where:{email:data.email}
         })
 
-        if(!userExists){
+        
+
+        if(!existingUser){  
              await prismaClient.user.create({
                 data:{
                     email:data.email,
@@ -48,10 +40,26 @@ const queries={
 
             })
         }
+         
+        const userInDb = await prismaClient.user.findUnique({
+            where:{email:data.email}
+        })
 
+            
+        if(!userInDb) throw new Error
 
+        const userToken = JWTService.generateTokenForUser(userInDb)
+
+        
+        
        
-        return "ok" 
+        return userToken 
+    },
+    getCurrentUser:async(parent:any,args:any,context:MyContext)=>{
+        const id =  context.user?.id
+        if(!id) return null
+        const user = await prismaClient.user.findUnique({where:{id}})
+        return user
     }
 }
 
