@@ -1,4 +1,4 @@
-export const types = `#graphql
+export const userTypes = `#graphql
 
 type User{
     id:ID!
@@ -6,6 +6,7 @@ type User{
     lastName:String
     email:String!
     profileImageUrl:String
+    tweets:[Tweet]
 }
 
 `

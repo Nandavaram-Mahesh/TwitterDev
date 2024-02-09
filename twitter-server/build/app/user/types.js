@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.types = void 0;
-exports.types = `#graphql
+exports.userTypes = void 0;
+exports.userTypes = `#graphql
 
 type User{
     id:ID!
@@ -9,6 +9,7 @@ type User{
     lastName:String
     email:String!
     profileImageUrl:String
+    tweets:[Tweet]
 }
 
 `;

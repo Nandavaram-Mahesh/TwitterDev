@@ -10,14 +10,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  firstName  String
-  lastName String?
+  id              String   @id @default(cuid())
+  email           String   @unique
+  firstName       String
+  lastName        String?
   profileImageUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  followers Follows[] @relation("follower")
+  following Follows[] @relation("following")
+  tweets    Tweet[]
+}
+
+model Follows {
+  follower  User   @relation("follower", fields: [followerId], references: [id])
+  followerId String
+
+  following   User   @relation("following", fields: [followingId], references: [id])
+  followingId String
+
+  @@id([followerId, followingId])
+}
+
+model Tweet {
+  id       String  @id @default(cuid())
+  content  String
+  imageUrl String?
+
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }

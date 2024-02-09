@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.queries = void 0;
 exports.queries = `#graphql
-    verifyAndGenerateToken(token:String!):String
-    getCurrentUser:User
-    getUserById(id:ID!):User
+getAllTweets:[Tweet]
+
 `;

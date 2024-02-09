@@ -6,9 +6,9 @@ import { GoogleTokenResult, MyContext } from '../../utils/interfaces';
 
 
 
-const queries={
+const queryResolvers={
 
-    verifyGoogleToken:async (parent:any,{token}:{token:string})=>{ 
+    verifyAndGenerateToken:async (parent:any,{token}:{token:string})=>{ 
         
         const googleAuthToken = token
         
@@ -46,12 +46,9 @@ const queries={
         })
 
             
-        if(!userInDb) throw new Error
+        if(!userInDb) throw new Error("User Not Found In DB")
 
         const userToken = JWTService.generateTokenForUser(userInDb)
-
-        
-        
        
         return userToken 
     },
@@ -60,7 +57,12 @@ const queries={
         if(!id) return null
         const user = await prismaClient.user.findUnique({where:{id}})
         return user
+    },
+    getUserById:async(parent:any,{id}:{id:string},context:MyContext)=>{
+        const user = await prismaClient.user.findUnique({where:{id}})
+        return user
     }
+
 }
 
-export const resolvers = {queries}
+export const resolvers = {queryResolvers}

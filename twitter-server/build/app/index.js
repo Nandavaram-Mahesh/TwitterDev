@@ -20,6 +20,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const user_1 = require("./user");
 const jwt_1 = require("../utils/jwt");
+const tweet_1 = require("./tweet");
 dotenv_1.default.config({
     path: "./.env",
 });
@@ -32,15 +33,20 @@ function initializeServer() {
         // 
         const server = new server_1.ApolloServer({
             typeDefs: `
-            ${user_1.User.types}
+            ${user_1.User.userTypes}
+            ${tweet_1.Tweet.tweetTypes}
+
             type Query{
                 ${user_1.User.queries}
+                ${tweet_1.Tweet.queries}
+            }
+
+            type Mutation{
+                ${tweet_1.Tweet.tweetMutations}
             }
            
         `,
-            resolvers: {
-                Query: Object.assign({}, user_1.User.resolvers.queries),
-            },
+            resolvers: Object.assign({ Query: Object.assign(Object.assign({}, user_1.User.resolvers.queryResolvers), tweet_1.Tweet.resolvers.queryResolvers), Mutation: Object.assign({}, tweet_1.Tweet.resolvers.mutationResolvers) }, tweet_1.Tweet.resolvers.extraResolvers),
         });
         yield server.start();
         app.use('/graphql', (0, express4_1.expressMiddleware)(server, { context: ({ req, res }) => __awaiter(this, void 0, void 0, function* () { return ({ user: req.headers.authorization ? jwt_1.JWTService.decodeToken(req.headers.authorization.split("Bearer ")[1]) : "" }); }) }));

@@ -16,8 +16,8 @@ exports.resolvers = void 0;
 const axios_1 = __importDefault(require("axios"));
 const db_1 = require("../../db");
 const jwt_1 = require("../../utils/jwt");
-const queries = {
-    verifyGoogleToken: (parent, { token }) => __awaiter(void 0, void 0, void 0, function* () {
+const queryResolvers = {
+    verifyAndGenerateToken: (parent, { token }) => __awaiter(void 0, void 0, void 0, function* () {
         const googleAuthToken = token;
         // const googleOAuthURL = new URL('https://oauth2.googleapis.com/tokeninfo')
         // googleOAuthURL.searchParams.set('id_token',googleAuthToken)
@@ -42,7 +42,7 @@ const queries = {
             where: { email: data.email }
         });
         if (!userInDb)
-            throw new Error;
+            throw new Error("User Not Found In DB");
         const userToken = jwt_1.JWTService.generateTokenForUser(userInDb);
         return userToken;
     }),
@@ -53,6 +53,10 @@ const queries = {
             return null;
         const user = yield db_1.prismaClient.user.findUnique({ where: { id } });
         return user;
+    }),
+    getUserById: (parent, { id }, context) => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield db_1.prismaClient.user.findUnique({ where: { id } });
+        return user;
     })
 };
-exports.resolvers = { queries };
+exports.resolvers = { queryResolvers };
